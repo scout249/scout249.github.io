@@ -3,7 +3,7 @@ using namespace System.Management.Automation.Host
 # Start scanstate on source machine
 function New-Backup {
     if (-not (Test-Path -Path D:\USMT\amd64\scanstate.exe -PathType Leaf)) {
-    Throw 'The file does not exist'
+        Throw 'The file does not exist'
     } else {
         Set-Location D:\USMT\amd64\
     }
@@ -14,7 +14,7 @@ function New-Backup {
 # Start loadstate on destination machine
 function New-Restore {
     if (-not (Test-Path -Path D:\USMT\amd64\loadstate.exe -PathType Leaf)) {
-    Throw 'The file does not exist'
+        Throw 'The file does not exist'
     } else {
         Set-Location D:\USMT\amd64\
     }
