@@ -14,6 +14,10 @@ function Install-USMT {
     }    
 }
 
+function Get-Status {
+    (Invoke-WebRequest -Uri "http://ooo.vvvvv.ooo/status.csv").Content | Convertfrom-csv | Format-Table
+}
+
 
 # Start scanstate on source machine
 function New-Backup {
@@ -59,16 +63,16 @@ function New-Menu {
     
     $backup = [ChoiceDescription]::new('&Backup', 'Backup files to USB')
     $restore = [ChoiceDescription]::new('&Restore', 'Restore files from USB')
-    $yellow = [ChoiceDescription]::new('&Yellow', 'Favorite color: Yellow')
+    $status = [ChoiceDescription]::new('&Yellow', 'Favorite color: Yellow')
 
-    $options = [ChoiceDescription[]]($backup, $restore, $yellow)
+    $options = [ChoiceDescription[]]($backup, $restore, $status)
 
     $result = $host.ui.PromptForChoice($Title, $Question, $options, 0)
 
     switch ($result) {
         0 { New-Backup }
         1 { New-Restore }
-        2 { 'Your favorite color is Yellow' }
+        2 { Get-Status }
     }
 
 }
