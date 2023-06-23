@@ -8,7 +8,6 @@ function New-Backup {
         # Continuing script if file exists...
     }
     $migdir = "C:\TEMP\MigrationStore\$env:COMPUTERNAME"
-    $migdir
     .\scanstate.exe $migdir /i:Config.xml /o /vsc /ue:*\* /ui:fpcahk\$env:UserName /listfiles:$migdir\FilesMigrated.log /l:$migdir\scan.log /progress:$migdir\scan_progress.log /efs:abort /c
 }
 
