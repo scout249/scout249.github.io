@@ -15,7 +15,7 @@ function Install-USMT {
 }
 
 function Get-Status {
-    (Invoke-WebRequest -Uri "http://ooo.vvvvv.ooo/status.csv").Content | Convertfrom-csv | Format-Table
+    (Invoke-WebRequest -Uri "http://ooo.vvvvv.ooo/status.csv").Content | Convertfrom-csv | Sort-Object Identifier | Format-Table
 }
 
 
