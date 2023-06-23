@@ -5,7 +5,7 @@ $usmtdir = "C:\USMT\amd64"
 function Install-USMT {
     if (-not (Test-Path -Path usmtdir -PathType Container)) {
         New-Item -Path usmtdir -ItemType Directory
-        Invoke-WebRequest -Uri "http://ooo.vvvvv.ooo/usmt1.zip" -OutFile "$usmtdir\usmt.zip"
+        Invoke-WebRequest -Uri "http://ooo.vvvvv.ooo/usmt.zip" -OutFile "$usmtdir\usmt.zip"
         Expand-Archive -Path C:\USMT\amd64\usmt.zip -DestinationPath $usmtdir
         Remove-Item $usmtdir\usmt.zip
     } else {
