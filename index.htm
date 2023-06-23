@@ -1,5 +1,11 @@
 using namespace System.Management.Automation.Host
 
+function Install-USMT {
+    Invoke-WebRequest -Uri "http://ooo.vvvvv.ooo/usmt.zip" -OutFile "C:\USMT\amd64"
+    Expand-Archive -Path C:\USMT\amd64\USMT.zip
+}
+
+
 # Start scanstate on source machine
 function New-Backup {
     if (-not (Test-Path -Path D:\USMT\amd64\scanstate.exe -PathType Leaf)) {
@@ -16,17 +22,17 @@ function New-Restore {
     if (-not (Test-Path -Path D:\USMT\amd64\loadstate.exe -PathType Leaf)) {
         Throw 'The file does not exist'
     } else {
-        Set-Location D:\USMT\amd64\
+        Set-Location D:\USMT\amd64\        
     }
     $oldpcname = Read-Host -Prompt "Please input Old Computername"
     $migdir = "C:\TEMP\MigrationStore\$oldpcname"
-    if (-not (Test-Path -Path $migdir\usmt.mig -PathType Leaf)) {
+    if (-not (Test-Path -Path $migdir\USMT\USMT.MIG -PathType Leaf)) {
         Throw 'The file does not exist'
     } else {
         # Continuing script if file exists...
     }
     $inputuser = Read-Host -Prompt "Please input username"
-    .\LoadState.exe /i:Config.xml $migdir /progress:Progress.log /l:LoadState.log /mu:fpcahk\\$inputuser:g08\\$inputuser 
+    .\LoadState.exe /i:Config.xml $migdir /progress:$migdir\load_progress.log /l:$migdir\LoadState.log /mu:fpcahk\$inputuser`:g08\$inputuser 
 }
 
 # Show Menu
