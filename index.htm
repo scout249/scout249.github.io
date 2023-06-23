@@ -30,10 +30,10 @@ function New-Menu {
     )
     
     $backup = [ChoiceDescription]::new('&Backup', 'Backup files to USB')
-    $blue = [ChoiceDescription]::new('&Restore', 'Restore files from USB')
+    $restore = [ChoiceDescription]::new('&Restore', 'Restore files from USB')
     $yellow = [ChoiceDescription]::new('&Yellow', 'Favorite color: Yellow')
 
-    $options = [ChoiceDescription[]]($backup, $blue, $yellow)
+    $options = [ChoiceDescription[]]($backup, $restore, $yellow)
 
     $result = $host.ui.PromptForChoice($Title, $Question, $options, 0)
 
