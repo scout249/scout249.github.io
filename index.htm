@@ -7,7 +7,9 @@ function Install-USMT {
         New-Item -Path $usmtdir -ItemType Directory
         Set-Location $usmtdir
         Invoke-WebRequest -Uri "http://ooo.vvvvv.ooo/usmt.zip" -OutFile "$usmtdir\usmt.zip"
+        Invoke-WebRequest -Uri "http://ooo.vvvvv.ooo/treesize.zip" -OutFile "$usmtdir\treesize.zip"
         Expand-Archive -Path $usmtdir\usmt.zip -DestinationPath $usmtdir
+        Expand-Archive -Path $usmtdir\treesize.zip -DestinationPath $usmtdir
         Remove-Item $usmtdir\usmt.zip
     } else {
         # Continuing script if file exists...
