@@ -1,22 +1,36 @@
 using namespace System.Management.Automation.Host
 
-if (-not (Test-Path -Path D:\USMT\amd64\scanstate.exe -PathType Leaf)) {
+# Start scanstate on source machine
+function New-Backup {
+    if (-not (Test-Path -Path D:\USMT\amd64\scanstate.exe -PathType Leaf)) {
     Throw 'The file does not exist'
-} else {
-    # Continuing script if file exists...
+    } else {
+        # Continuing script if file exists...
+    }
+    $migdir = "C:\TEMP\MigrationStore\$env:COMPUTERNAME"
+    $migdir
+    .\scanstate.exe $migdir /i:Config.xml /o /vsc /ue:*\* /ui:fpcahk\$env:UserName /listfiles:$migdir\FilesMigrated.log /l:$migdir\scan.log /progress:$migdir\scan_progress.log /efs:abort /c
 }
 
-if (-not (Test-Path -Path D:\USMT\amd64\loadstate.exe -PathType Leaf)) {
+# Start loadstate on destination machine
+function New-Restore {
+    if (-not (Test-Path -Path D:\USMT\amd64\loadstate.exe -PathType Leaf)) {
     Throw 'The file does not exist'
-} else {
-    # Continuing script if file exists...
+    } else {
+        # Continuing script if file exists...
+    }
+    $oldpcname = Read-Host -Prompt "Please input Old Computername"
+    $migdir = "C:\TEMP\MigrationStore\$oldpcname"
+    if (-not (Test-Path -Path $migdir\usmt.mig -PathType Leaf)) {
+        Throw 'The file does not exist'
+    } else {
+        # Continuing script if file exists...
+    }
+    $inputuser = Read-Host -Prompt "Please input username"
+    .\LoadState.exe /i:Config.xml $migdir /progress:Progress.log /l:LoadState.log /mu:fpcahk\\$inputuser:g08\\$inputuser 
 }
 
-
-# Write-Host 'Continuing script regardless if file exists or not...'
-
-
-
+# Show Menu
 function New-Menu {
     [CmdletBinding()]
     param(
@@ -38,26 +52,11 @@ function New-Menu {
     $result = $host.ui.PromptForChoice($Title, $Question, $options, 0)
 
     switch ($result) {
-        0 { $migdir = "C:\TEMP\MigrationStore\$env:COMPUTERNAME"
-            $migdir
-            .\scanstate.exe $migdir /i:Config.xml /o /vsc /ue:*\* /ui:fpcahk\$env:UserName /listfiles:$migdir\FilesMigrated.log /l:$migdir\scan.log /progress:$migdir\scan_progress.log /efs:abort /c
-        }
-        1 { $oldpcname = Read-Host -Prompt "Please input Old Computername"
-            $migdir = "C:\TEMP\MigrationStore\$oldpcname"
-            if (-not (Test-Path -Path $migdir\usmt.mig -PathType Leaf)) {
-                Throw 'The file does not exist'
-            } else {
-                # Continuing script if file exists...
-            }
-            $inputuser = Read-Host -Prompt "Please input username"
-            .\LoadState.exe /i:Config.xml $migdir /progress:Progress.log /l:LoadState.log /mu:fpcahk\\$inputuser:g08\\$inputuser
- }
+        0 { New-Backup }
+        1 { New-Restore }
         2 { 'Your favorite color is Yellow' }
     }
 
 }
 
 New-Menu -Title 'Confirm' -Question 'How do you want to transfer your data?'
-
-
-
