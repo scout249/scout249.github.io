@@ -44,6 +44,11 @@ function New-Menu {
         }
         1 { $oldpcname = Read-Host -Prompt "Please input Old Computername"
             $migdir = "C:\TEMP\MigrationStore\$oldpcname"
+            if (-not (Test-Path -Path $migdir\usmt.mig -PathType Leaf)) {
+                Throw 'The file does not exist'
+            } else {
+                # Continuing script if file exists...
+            }
             $inputuser = Read-Host -Prompt "Please input username"
             .\LoadState.exe /i:Config.xml $migdir /progress:Progress.log /l:LoadState.log /mu:fpcahk\\$inputuser:g08\\$inputuser
  }
