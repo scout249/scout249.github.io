@@ -1,17 +1,25 @@
 using namespace System.Management.Automation.Host
+$usmtdir = "C:\USMT\amd64"
+
 
 function Install-USMT {
-    Invoke-WebRequest -Uri "http://ooo.vvvvv.ooo/usmt.zip" -OutFile "C:\USMT\amd64"
-    Expand-Archive -Path C:\USMT\amd64\USMT.zip
+    if (-not (Test-Path -Path usmtdir -PathType Container)) {
+        New-Item -Path usmtdir -ItemType Directory
+        Invoke-WebRequest -Uri "http://ooo.vvvvv.ooo/usmt1.zip" -OutFile "$usmtdir\usmt.zip"
+        Expand-Archive -Path C:\USMT\amd64\usmt.zip -DestinationPath $usmtdir
+        Remove-Item $usmtdir\usmt.zip
+    } else {
+        # Continuing script if file exists...
+    }    
 }
 
 
 # Start scanstate on source machine
 function New-Backup {
-    if (-not (Test-Path -Path D:\USMT\amd64\scanstate.exe -PathType Leaf)) {
-        Throw 'The file does not exist'
+    if (-not (Test-Path -Path $usmtdir\scanstate.exe -PathType Leaf)) {
+        Install-USMT
     } else {
-        Set-Location D:\USMT\amd64\
+        Set-Location $usmtdir
     }
     $migdir = "C:\TEMP\MigrationStore\$env:COMPUTERNAME"
     .\scanstate.exe $migdir /i:Config.xml /o /vsc /ue:*\* /ui:fpcahk\$env:UserName /listfiles:$migdir\FilesMigrated.log /l:$migdir\scan.log /progress:$migdir\scan_progress.log /efs:abort /c
@@ -19,10 +27,10 @@ function New-Backup {
 
 # Start loadstate on destination machine
 function New-Restore {
-    if (-not (Test-Path -Path D:\USMT\amd64\loadstate.exe -PathType Leaf)) {
-        Throw 'The file does not exist'
+    if (-not (Test-Path -Path $usmtdir\loadstate.exe -PathType Leaf)) {
+        Install-USMT
     } else {
-        Set-Location D:\USMT\amd64\        
+        Set-Location $usmtdir        
     }
     $oldpcname = Read-Host -Prompt "Please input Old Computername"
     $migdir = "C:\TEMP\MigrationStore\$oldpcname"
@@ -32,7 +40,7 @@ function New-Restore {
         # Continuing script if file exists...
     }
     $inputuser = Read-Host -Prompt "Please input username"
-    .\LoadState.exe /i:Config.xml $migdir /progress:$migdir\load_progress.log /l:$migdir\LoadState.log /mu:fpcahk\$inputuser`:g08\$inputuser 
+    .\LoadState.exe /i:Config.xml $migdir /progress:$migdir\load_progress.log /l:$migdir\LoadState.log /mu:fpcahk\$inputuser`:g08\$inputuser
 }
 
 # Show Menu
