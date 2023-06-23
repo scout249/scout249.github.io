@@ -42,7 +42,11 @@ function New-Menu {
             $migdir
             .\scanstate.exe $migdir /i:Config.xml /o /vsc /ue:*\* /ui:fpcahk\$env:UserName /listfiles:$migdir\FilesMigrated.log /l:$migdir\scan.log /progress:$migdir\scan_progress.log /efs:abort /c
         }
-        1 { 'Your favorite color is Blue' }
+        1 { $oldpcname = Read-Host -Prompt "Please input Old Computername"
+            $migdir = "C:\TEMP\MigrationStore\$oldpcname"
+            $inputuser = Read-Host -Prompt "Please input username"
+            .\LoadState.exe /i:Config.xml $migdir /progress:Progress.log /l:LoadState.log /mu:fpcahk\\$inputuser:g08\\$inputuser
+ }
         2 { 'Your favorite color is Yellow' }
     }
 
