@@ -5,7 +5,7 @@ function New-Backup {
     if (-not (Test-Path -Path D:\USMT\amd64\scanstate.exe -PathType Leaf)) {
     Throw 'The file does not exist'
     } else {
-        # Continuing script if file exists...
+        Set-Location D:\USMT\amd64\
     }
     $migdir = "C:\TEMP\MigrationStore\$env:COMPUTERNAME"
     .\scanstate.exe $migdir /i:Config.xml /o /vsc /ue:*\* /ui:fpcahk\$env:UserName /listfiles:$migdir\FilesMigrated.log /l:$migdir\scan.log /progress:$migdir\scan_progress.log /efs:abort /c
@@ -16,7 +16,7 @@ function New-Restore {
     if (-not (Test-Path -Path D:\USMT\amd64\loadstate.exe -PathType Leaf)) {
     Throw 'The file does not exist'
     } else {
-        # Continuing script if file exists...
+        Set-Location D:\USMT\amd64\
     }
     $oldpcname = Read-Host -Prompt "Please input Old Computername"
     $migdir = "C:\TEMP\MigrationStore\$oldpcname"
