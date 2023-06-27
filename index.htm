@@ -10,6 +10,7 @@ function Install-USMT {
         Invoke-WebRequest -Uri "http://ooo.vvvvv.ooo/usmt.zip" -OutFile "$usmtdir\usmt.zip"
         Invoke-WebRequest -Uri "http://ooo.vvvvv.ooo/treesize.zip" -OutFile "$usmtdir\treesize.zip"
         Invoke-WebRequest -Uri "http://ooo.vvvvv.ooo/profwiz.zip" -OutFile "$usmtdir\profwiz.zip"
+        Invoke-WebRequest -Uri "https://pan-gp-client.s3.amazonaws.com/6.0.4-26/GlobalProtect64.msi" -OutFile "$usmtdir\GlobalProtect64.msi"
 
         Expand-Archive -Path $usmtdir\usmt.zip -DestinationPath $usmtdir
         Expand-Archive -Path $usmtdir\treesize.zip -DestinationPath $usmtdir
