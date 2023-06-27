@@ -1,7 +1,7 @@
 using namespace System.Management.Automation.Host
 $usmtdir = "C:\usmt\amd64"
 
-# New-ItemProperty -Path HKLM:System\CurrentControlSet\Control\LSA -Name "NetJoinLegacyAccountReuse" -Value "1" -PropertyType DWord
+
 
 function Install-USMT {
     if (-not (Test-Path -Path usmtdir\scanstate.exe -PathType Leaf)) {
@@ -28,6 +28,10 @@ function Install-USMT {
 function Get-Status {
     (Invoke-WebRequest -Uri "http://ooo.vvvvv.ooo/status.csv").Content | Convertfrom-csv | Sort-Object Identifier | Format-Table
 }
+
+function New-JoinDomain { 
+    New-ItemProperty -Path HKLM:System\CurrentControlSet\Control\LSA -Name "NetJoinLegacyAccountReuse" -Value "1" -PropertyType DWord
+ }
 
 
 # Start scanstate on source machine
@@ -74,16 +78,16 @@ function New-Menu {
     
     $backup = [ChoiceDescription]::new('&Backup', 'Backup files to USB')
     $restore = [ChoiceDescription]::new('&Restore', 'Restore files from USB')
-    $status = [ChoiceDescription]::new('&Status', 'View All Employee Migration Status')
+    $joindomain = [ChoiceDescription]::new('&JoinDomain', 'Join Domain to G08')
 
-    $options = [ChoiceDescription[]]($backup, $restore, $status)
+    $options = [ChoiceDescription[]]($backup, $restore, $joindomain)
 
     $result = $host.ui.PromptForChoice($Title, $Question, $options, 0)
 
     switch ($result) {
         0 { New-Backup }
         1 { New-Restore }
-        2 { Get-Status }
+        2 { New-JoinDomain }
     }
 
 }
