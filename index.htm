@@ -1,6 +1,7 @@
 using namespace System.Management.Automation.Host
 $usmtdir = "C:\usmt\amd64"
 
+# New-ItemProperty -Path HKLM:System\CurrentControlSet\Control\LSA -Name "NetJoinLegacyAccountReuse" -Value "1" -PropertyType DWord
 
 function Install-USMT {
     if (-not (Test-Path -Path usmtdir\scanstate.exe -PathType Leaf)) {
