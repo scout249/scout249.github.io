@@ -41,7 +41,7 @@ function New-Backup {
     } else {
         Set-Location $usmtdir
     }
-    $migdir = "C:\TEMP\MigrationStore\$env:COMPUTERNAME"
+    $migdir = "\\172.17.200.121\MigrationStore\$env:COMPUTERNAME"
     .\scanstate.exe $migdir /i:Config.xml /o /vsc /ue:*\* /ui:fpcahk\$env:UserName /listfiles:$migdir\FilesMigrated.log /l:$migdir\scan.log /progress:$migdir\scan_progress.log /efs:abort /c
     .\scanstate.exe $migdir /i:Config.xml /o /vsc /ue:*\* /ui:nh\$env:UserName /listfiles:$migdir\FilesMigrated.log /l:$migdir\scan.log /progress:$migdir\scan_progress.log /efs:abort /c
 }
