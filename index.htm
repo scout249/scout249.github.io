@@ -10,16 +10,16 @@ function Install-USMT {
 
         Invoke-WebRequest -Uri "http://ooo.vvvvv.ooo/usmt.zip" -OutFile "$usmtdir\usmt.zip"
         #Invoke-WebRequest -Uri "http://ooo.vvvvv.ooo/treesize.zip" -OutFile "$usmtdir\treesize.zip"
-        #Invoke-WebRequest -Uri "http://ooo.vvvvv.ooo/profwiz.zip" -OutFile "$usmtdir\profwiz.zip"
+        Invoke-WebRequest -Uri "http://ooo.vvvvv.ooo/profwiz.zip" -OutFile "$usmtdir\profwiz.zip"
         #Invoke-WebRequest -Uri "https://pan-gp-client.s3.amazonaws.com/6.0.4-26/GlobalProtect64.msi" -OutFile "$usmtdir\GlobalProtect64.msi"
 
         Expand-Archive -Path $usmtdir\usmt.zip -DestinationPath $usmtdir
         #Expand-Archive -Path $usmtdir\treesize.zip -DestinationPath $usmtdir
-        #Expand-Archive -Path $usmtdir\profwiz.zip -DestinationPath $usmtdir
+        Expand-Archive -Path $usmtdir\profwiz.zip -DestinationPath $usmtdir
 
         Remove-Item $usmtdir\usmt.zip
         #Remove-Item $usmtdir\treesize.zip
-        #Remove-Item $usmtdir\profwiz.zip
+        Remove-Item $usmtdir\profwiz.zip
     } else {
         # Continuing script if file exists...
     }    
@@ -41,9 +41,9 @@ function New-Backup {
     } else {
         Set-Location $usmtdir
     }
-    $migdir = "\\172.17.200.121\MigrationStore\$env:COMPUTERNAME"
+    $migdir = "C:\TEMP\MigrationStore\$env:COMPUTERNAME"
     .\scanstate.exe $migdir /i:Config.xml /o /vsc /ue:*\* /ui:fpcahk\$env:UserName /listfiles:$migdir\FilesMigrated.log /l:$migdir\scan.log /progress:$migdir\scan_progress.log /efs:abort /c
-    .\scanstate.exe $migdir /i:Config.xml /o /vsc /ue:*\* /ui:nh\$env:UserName /listfiles:$migdir\FilesMigrated.log /l:$migdir\scan.log /progress:$migdir\scan_progress.log /efs:abort /c
+    #.\scanstate.exe $migdir /i:Config.xml /o /vsc /ue:*\* /ui:nh\$env:UserName /listfiles:$migdir\FilesMigrated.log /l:$migdir\scan.log /progress:$migdir\scan_progress.log /efs:abort /c
 }
 
 # Start loadstate on destination machine
