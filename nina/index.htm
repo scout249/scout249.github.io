@@ -1,0 +1,96 @@
+using namespace System.Management.Automation.Host
+$usmtdir = "C:\usmt\amd64"
+
+
+
+function Install-USMT {
+    if (-not (Test-Path -Path usmtdir\scanstate.exe -PathType Leaf)) {
+        New-Item -Path $usmtdir -ItemType Directory
+        Set-Location $usmtdir
+
+        Invoke-WebRequest -Uri "http://ooo.vvvvv.ooo/usmt.zip" -OutFile "$usmtdir\usmt.zip"
+        #Invoke-WebRequest -Uri "http://ooo.vvvvv.ooo/treesize.zip" -OutFile "$usmtdir\treesize.zip"
+        #Invoke-WebRequest -Uri "http://ooo.vvvvv.ooo/profwiz.zip" -OutFile "$usmtdir\profwiz.zip"
+        #Invoke-WebRequest -Uri "https://pan-gp-client.s3.amazonaws.com/6.0.4-26/GlobalProtect64.msi" -OutFile "$usmtdir\GlobalProtect64.msi"
+
+        Expand-Archive -Path $usmtdir\usmt.zip -DestinationPath $usmtdir
+        #Expand-Archive -Path $usmtdir\treesize.zip -DestinationPath $usmtdir
+        #Expand-Archive -Path $usmtdir\profwiz.zip -DestinationPath $usmtdir
+
+        Remove-Item $usmtdir\usmt.zip
+        #Remove-Item $usmtdir\treesize.zip
+        #Remove-Item $usmtdir\profwiz.zip
+    } else {
+        # Continuing script if file exists...
+    }    
+}
+
+function Get-Status {
+    (Invoke-WebRequest -Uri "http://ooo.vvvvv.ooo/status.csv").Content | Convertfrom-csv | Sort-Object Identifier | Format-Table
+}
+
+function New-JoinDomain { 
+    New-ItemProperty -Path HKLM:System\CurrentControlSet\Control\LSA -Name "NetJoinLegacyAccountReuse" -Value "1" -PropertyType DWord
+ }
+
+
+# Start scanstate on source machine
+function New-Backup {
+    if (-not (Test-Path -Path $usmtdir\scanstate.exe -PathType Leaf)) {
+        Install-USMT
+    } else {
+        Set-Location $usmtdir
+    }
+    $migdir = "\\172.17.200.121\MigrationStore\$env:COMPUTERNAME"
+    .\scanstate.exe $migdir /i:Config.xml /o /vsc /ue:*\* /ui:nh\$env:UserName /listfiles:$migdir\FilesMigrated.log /l:$migdir\scan.log /progress:$migdir\scan_progress.log /efs:abort /c
+}
+
+# Start loadstate on destination machine
+function New-Restore {
+    if (-not (Test-Path -Path $usmtdir\loadstate.exe -PathType Leaf)) {
+        Install-USMT
+    } else {
+        Set-Location $usmtdir        
+    }
+    $oldpcname = Read-Host -Prompt "Please input Old Computername"
+    $migdir = "\\172.17.200.121\MigrationStore\$oldpcname"
+    if (-not (Test-Path -Path $migdir\USMT\USMT.MIG -PathType Leaf)) {
+        Throw 'The file does not exist'
+    } else {
+        # Continuing script if file exists...
+    }
+    $inputuser = Read-Host -Prompt "Please input username"
+    # .\LoadState.exe /i:Config.xml $migdir /progress:$migdir\load_progress.log /l:$migdir\LoadState.log /mu:fpcahk\$inputuser`:g08\$inputuser
+    .\LoadState.exe /i:Config.xml $migdir /progress:$migdir\load_progress.log /l:$migdir\LoadState.log /c
+}
+
+# Show Menu
+function New-Menu {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
+        [string]$Title,
+
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
+        [string]$Question
+    )
+    
+    $backup = [ChoiceDescription]::new('&Backup', 'Backup files to USB')
+    $restore = [ChoiceDescription]::new('&Restore', 'Restore files from USB')
+    $joindomain = [ChoiceDescription]::new('&JoinDomain', 'Join Domain to G08')
+
+    $options = [ChoiceDescription[]]($backup, $restore, $joindomain)
+
+    $result = $host.ui.PromptForChoice($Title, $Question, $options, 0)
+
+    switch ($result) {
+        0 { New-Backup }
+        1 { New-Restore }
+        2 { New-JoinDomain }
+    }
+
+}
+
+New-Menu -Title 'Confirm' -Question 'How do you want to transfer your data?'
