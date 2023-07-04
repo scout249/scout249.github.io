@@ -39,7 +39,8 @@ function New-Backup {
         Set-Location $usmtdir
     }
     $migdir = "\\172.17.200.121\MigrationStore\$env:COMPUTERNAME"
-    $myuser = Read-Host -Prompt "Input Username (Domain\User): "
+    $myuser = Read-Host -Prompt "Input Username (Domain\User)"
+    $myuser
     .\scanstate.exe $migdir /i:Config.xml /o /vsc /ue:*\* /ui:$myuser /listfiles:$migdir\FilesMigrated.log /l:$migdir\scan.log /progress:$migdir\scan_progress.log /efs:abort /c
 }
 
