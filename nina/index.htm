@@ -2,7 +2,6 @@ using namespace System.Management.Automation.Host
 $usmtdir = "C:\usmt\amd64"
 
 
-
 function Install-USMT {
     if (-not (Test-Path -Path usmtdir\scanstate.exe -PathType Leaf)) {
         New-Item -Path $usmtdir -ItemType Directory
@@ -40,7 +39,7 @@ function New-Backup {
         Set-Location $usmtdir
     }
     $migdir = "\\172.17.200.121\MigrationStore\$env:COMPUTERNAME"
-    .\scanstate.exe $migdir /i:Config.xml /o /vsc /ue:*\* /ui:nh\$env:UserName /listfiles:$migdir\FilesMigrated.log /l:$migdir\scan.log /progress:$migdir\scan_progress.log /efs:abort /c
+    .\scanstate.exe $migdir /i:Config.xml /o /vsc /ue:*\* /ui:$domain\$env:UserName /listfiles:$migdir\FilesMigrated.log /l:$migdir\scan.log /progress:$migdir\scan_progress.log /efs:abort /c
 }
 
 # Start loadstate on destination machine
@@ -78,8 +77,9 @@ function New-Menu {
     $backup = [ChoiceDescription]::new('&Backup', 'Backup files to USB')
     $restore = [ChoiceDescription]::new('&Restore', 'Restore files from USB')
     $joindomain = [ChoiceDescription]::new('&JoinDomain', 'Join Domain to G08')
+    $macaddress = [ChoiceDescription]::new('&MacAddress', 'Get Mac Address')
 
-    $options = [ChoiceDescription[]]($backup, $restore, $joindomain)
+    $options = [ChoiceDescription[]]($backup, $restore, $joindomain, $macaddress)
 
     $result = $host.ui.PromptForChoice($Title, $Question, $options, 0)
 
@@ -87,6 +87,7 @@ function New-Menu {
         0 { New-Backup }
         1 { New-Restore }
         2 { New-JoinDomain }
+        3 { Get-NetAdapter }
     }
 
 }
