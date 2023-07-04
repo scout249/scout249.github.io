@@ -25,12 +25,10 @@ function Install-USMT {
     }    
 }
 
-function Get-Status {
-    (Invoke-WebRequest -Uri "http://ooo.vvvvv.ooo/status.csv").Content | Convertfrom-csv | Sort-Object Identifier | Format-Table
-}
 
 function New-JoinDomain { 
-    New-ItemProperty -Path HKLM:System\CurrentControlSet\Control\LSA -Name "NetJoinLegacyAccountReuse" -Value "1" -PropertyType DWord
+    $cred = Get-Credential
+    Add-Computer lhotelgroup.com -Credential $cred -force -restart
  }
 
 
