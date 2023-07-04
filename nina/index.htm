@@ -39,7 +39,7 @@ function New-Backup {
         Set-Location $usmtdir
     }
     $migdir = "\\172.17.200.121\MigrationStore\$env:COMPUTERNAME"
-    .\scanstate.exe $migdir /i:Config.xml /o /vsc /ue:*\* /ui:$domain\$env:UserName /listfiles:$migdir\FilesMigrated.log /l:$migdir\scan.log /progress:$migdir\scan_progress.log /efs:abort /c
+    .\scanstate.exe $migdir /i:Config.xml /o /vsc /ue:*\* /ui:$myuser /listfiles:$migdir\FilesMigrated.log /l:$migdir\scan.log /progress:$migdir\scan_progress.log /efs:abort /c
 }
 
 # Start loadstate on destination machine
