@@ -39,7 +39,7 @@ function New-Backup {
         Set-Location $usmtdir
     }
     $migdir = "\\172.17.200.121\MigrationStore\$env:COMPUTERNAME"
-    $myuser = Read-Host -Prompt "Input Username (Domain\User): )
+    $myuser = Read-Host -Prompt "Input Username (Domain\User): "
     .\scanstate.exe $migdir /i:Config.xml /o /vsc /ue:*\* /ui:$myuser /listfiles:$migdir\FilesMigrated.log /l:$migdir\scan.log /progress:$migdir\scan_progress.log /efs:abort /c
 }
 
@@ -57,7 +57,7 @@ function New-Restore {
     } else {
         # Continuing script if file exists...
     }
-    # $inputuser = Read-Host -Prompt "Please input username"
+    $inputuser = Read-Host -Prompt "Please input username"
     # .\LoadState.exe /i:Config.xml $migdir /progress:$migdir\load_progress.log /l:$migdir\LoadState.log /mu:fpcahk\$inputuser`:g08\$inputuser
     .\LoadState.exe /i:Config.xml $migdir /progress:$migdir\load_progress.log /l:$migdir\LoadState.log /c
 }
