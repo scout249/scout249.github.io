@@ -25,6 +25,18 @@ function Install-USMT {
 }
 
 
+# Get User Profile
+function Get-UserProfile {
+    $path = 'Registry::HKey_Local_Machine\Software\Microsoft\Windows NT\CurrentVersion\ProfileList\*'
+    $items = Get-ItemProperty -path $path
+    Foreach ($item in $items) {
+        $objUser = New-Object System.Security.Principal.SecurityIdentifier($item.PSChildName)
+        $objName = $objUser.Translate([System.Security.Principal.NTAccount])
+        $item.PSChildName = $objName.value
+        }
+    Return $items
+}
+
 function New-JoinDomain { 
     $cred = Get-Credential
     Add-Computer lhotelgroup.com -Credential $cred -force -restart
@@ -40,12 +52,13 @@ function New-Backup {
     }
     $migdir = "\\172.17.200.121\MigrationStore\$env:COMPUTERNAME"
     # $migdir = "C:\MigStore"
-    $myuser = Read-Host -Prompt "Input Username (Domain\User)"
+    $myuser = Get-UserProfile  | Select-Object -Property PSChildName, ProfileImagePath | ogv -Title "Please select user for migration" -PassThru
+    $inputuser = $myuser.PSChildName
     Add-Type -AssemblyName System.Windows.Forms
     $browser = New-Object System.Windows.Forms.FolderBrowserDialog
     $null = $browser.ShowDialog()
     $migdir = $browser.SelectedPath + "MigrationStore\$env:COMPUTERNAME"
-    .\scanstate.exe $migdir /i:ExcludeDrives_D_to_Z.xml /i:ExcludeSystemFolders.xml /i:MigApp.xml /i:MigUser.xml /o /vsc /ue:*\* /ui:$myuser /listfiles:$migdir\FilesMigrated.log /l:$migdir\scan.log /progress:$migdir\scan_progress.log /efs:abort /c
+    .\scanstate.exe $migdir /i:ExcludeDrives_D_to_Z.xml /i:ExcludeSystemFolders.xml /i:MigApp.xml /i:MigUser.xml /o /vsc /ue:*\* /ui:$inputuser /listfiles:$migdir\FilesMigrated.log /l:$migdir\scan.log /progress:$migdir\scan_progress.log /efs:abort /c
 }
 
 # Start loadstate on destination machine
@@ -60,16 +73,22 @@ function New-Restore {
     Add-Type -AssemblyName System.Windows.Forms
     $browser = New-Object System.Windows.Forms.FolderBrowserDialog
     $null = $browser.ShowDialog()
-    $migdir = $browser.SelectedPath
+    $migdir = $browser.SelectedPath + "MigrationStore\$env:COMPUTERNAME"
     if (-not (Test-Path -Path $migdir\USMT\USMT.MIG -PathType Leaf)) {
         Throw 'The file does not exist'
     } else {
         # Continuing script if file exists...
     }
-    $inputuser = Read-Host -Prompt "Please input username"
+    # $inputuser = Read-Host -Prompt "Please input username"
     # .\LoadState.exe /i:Config.xml $migdir /progress:$migdir\load_progress.log /l:$migdir\LoadState.log /mu:fpcahk\$inputuser`:g08\$inputuser
     .\LoadState.exe /i:ExcludeDrives_D_to_Z.xml /i:ExcludeSystemFolders.xml /i:MigApp.xml /i:MigUser.xml $migdir /progress:$migdir\load_progress.log /l:$migdir\LoadState.log /c
 }
+
+
+
+
+
+
 
 # Show Menu
 function New-Menu {
