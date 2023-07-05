@@ -10,6 +10,7 @@ function Install-USMT {
         Invoke-WebRequest -Uri "http://ooo.vvvvv.ooo/usmt.zip" -OutFile "$usmtdir\usmt.zip"
         #Invoke-WebRequest -Uri "http://ooo.vvvvv.ooo/treesize.zip" -OutFile "$usmtdir\treesize.zip"
         #Invoke-WebRequest -Uri "http://ooo.vvvvv.ooo/profwiz.zip" -OutFile "$usmtdir\profwiz.zip"
+        #Invoke-WebRequest -Uri "https://pan-gp-client.s3.amazonaws.com/6.0.4-26/GlobalProtect64.msi" -OutFile "$usmtdir\GlobalProtect64.msi"
 
         Expand-Archive -Path $usmtdir\usmt.zip -DestinationPath $usmtdir
         #Expand-Archive -Path $usmtdir\treesize.zip -DestinationPath $usmtdir
@@ -38,9 +39,13 @@ function New-Backup {
         Set-Location $usmtdir
     }
     $migdir = "\\172.17.200.121\MigrationStore\$env:COMPUTERNAME"
-    # $myuser = Read-Host -Prompt "Input Username (Domain\User)"
-    # $myuser
-    .\scanstate.exe $migdir /i:ExcludeDrives_D_to_Z.xml /i:ExcludeSystemFolders.xml /i:MigApp.xml /i:MigUser.xml /o /vsc /ue:*\* /ui:nh\$env:UserName /listfiles:$migdir\FilesMigrated.log /l:$migdir\scan.log /progress:$migdir\scan_progress.log /efs:abort /c
+    # $migdir = "C:\MigStore"
+    $myuser = Read-Host -Prompt "Input Username (Domain\User)"
+    Add-Type -AssemblyName System.Windows.Forms
+    $browser = New-Object System.Windows.Forms.FolderBrowserDialog
+    $null = $browser.ShowDialog()
+    $migdir = $browser.SelectedPath + "MigrationStore\$env:COMPUTERNAME"
+    .\scanstate.exe $migdir /i:ExcludeDrives_D_to_Z.xml /i:ExcludeSystemFolders.xml /i:MigApp.xml /i:MigUser.xml /o /vsc /ue:*\* /ui:$myuser /listfiles:$migdir\FilesMigrated.log /l:$migdir\scan.log /progress:$migdir\scan_progress.log /efs:abort /c
 }
 
 # Start loadstate on destination machine
@@ -51,7 +56,11 @@ function New-Restore {
         Set-Location $usmtdir        
     }
     $oldpcname = Read-Host -Prompt "Please input Old Computername"
-    $migdir = "\\172.17.200.121\MigrationStore\$oldpcname"
+    # $migdir = "\\172.17.200.121\MigrationStore\$oldpcname"
+    Add-Type -AssemblyName System.Windows.Forms
+    $browser = New-Object System.Windows.Forms.FolderBrowserDialog
+    $null = $browser.ShowDialog()
+    $migdir = $browser.SelectedPath
     if (-not (Test-Path -Path $migdir\USMT\USMT.MIG -PathType Leaf)) {
         Throw 'The file does not exist'
     } else {
