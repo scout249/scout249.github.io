@@ -50,7 +50,7 @@ function New-Backup {
     } else {
         Set-Location $usmtdir
     }
-    $migdir = "\\172.17.200.121\MigrationStore\$env:COMPUTERNAME"
+    # $migdir = "\\172.17.200.121\MigrationStore\$env:COMPUTERNAME"
     # $migdir = "C:\MigStore"
     $myuser = Get-UserProfile  | Select-Object -Property PSChildName, ProfileImagePath | ogv -Title "Please select user for migration" -OutputMode Single -PassThru
     $inputuser = $myuser.PSChildName
@@ -83,12 +83,6 @@ function New-Restore {
     # .\LoadState.exe /i:Config.xml $migdir /progress:$migdir\load_progress.log /l:$migdir\LoadState.log /mu:fpcahk\$inputuser`:g08\$inputuser
     .\LoadState.exe /i:ExcludeDrives_D_to_Z.xml /i:ExcludeSystemFolders.xml /i:MigApp.xml /i:MigUser.xml $migdir /progress:$migdir\load_progress.log /l:$migdir\LoadState.log /c
 }
-
-
-
-
-
-
 
 # Show Menu
 function New-Menu {
