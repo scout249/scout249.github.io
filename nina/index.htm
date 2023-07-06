@@ -52,7 +52,7 @@ function New-Backup {
     }
     # $migdir = "\\172.17.200.121\MigrationStore\$env:COMPUTERNAME"
     # $migdir = "C:\MigStore"
-    $myuser = Get-UserProfile  | Select-Object -Property PSChildName, ProfileImagePath | ogv -Title "Please select user for migration" -OutputMode Single -PassThru
+    $myuser = Get-UserProfile  | Select-Object -Property PSChildName, ProfileImagePath | ogv -Title "Please select user for migration" -OutputMode Single
     $inputuser = $myuser.PSChildName
     Add-Type -AssemblyName System.Windows.Forms
     $browser = New-Object System.Windows.Forms.FolderBrowserDialog
