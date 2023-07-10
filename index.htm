@@ -100,17 +100,17 @@ function New-NinaPrinter {
     $printername = "HP Laserjet (" + $iplastoctet[3] +")"
     
     if($make -eq "Brother"){
-        Add-PrinterPort -Name $printerip -PrinterHostAddress $ip
+        Add-PrinterPort -Name $ip -PrinterHostAddress $ip
         Add-PrinterDriver -Name "Brother Mono Universal Printer (PCL)"
-        Add-Printer -DriverName "Brother Mono Universal Printer (PCL)" -Name $printername -PortName $printerip
+        Add-Printer -DriverName "Brother Mono Universal Printer (PCL)" -Name $printername -PortName $ip
     } elseif($make -eq "HP"){
-        Add-PrinterPort -Name $printerip -PrinterHostAddress $ip
+        Add-PrinterPort -Name $ip -PrinterHostAddress $ip
         Add-PrinterDriver -Name "HP Universal Printing PCL 6 (v7.1.0)"
-        Add-Printer -DriverName "HP Universal Printing PCL 6 (v7.1.0)" -Name $printername -PortName $printerip
+        Add-Printer -DriverName "HP Universal Printing PCL 6 (v7.1.0)" -Name $printername -PortName $ip
     } elseif($make -eq "Canon"){
-        Add-PrinterPort -Name $printerip -PrinterHostAddress $ip
+        Add-PrinterPort -Name $ip -PrinterHostAddress $ip
         Add-PrinterDriver -Name "Canon Generic Plus UFR II"
-        Add-Printer -DriverName "Canon Generic Plus UFR II" -Name $printername -PortName $printerip
+        Add-Printer -DriverName "Canon Generic Plus UFR II" -Name $printername -PortName $ip
     }
 }
 
