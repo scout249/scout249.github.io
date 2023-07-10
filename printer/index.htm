@@ -19,5 +19,5 @@ $printerip = Read-Host -Prompt "Input Printer IP"
 $iplastoctet = $printerip.split('.')
 $printername = "Canon (" + $iplastoctet[3] +")"
 Add-PrinterPort -Name $printerip -PrinterHostAddress $printerip
-Add-PrinterDriver -Name "Canon Generic Plus PCL6"
-Add-Printer -DriverName "Canon Generic Plus PCL6" -Name $printername -PortName $printerip
+Add-PrinterDriver -Name "Canon Generic Plus UFR II"
+Add-Printer -DriverName "Canon Generic Plus UFR II" -Name $printername -PortName $printerip
