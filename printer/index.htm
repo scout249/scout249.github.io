@@ -1,4 +1,4 @@
-#HP Printer
+# HP Printer
 $printerip = Read-Host -Prompt "Input Printer IP"
 $iplastoctet = $printerip.split('.')
 $printername = "HP Laserjet (" + $iplastoctet[3] +")"
@@ -6,10 +6,18 @@ Add-PrinterPort -Name $printerip -PrinterHostAddress $printerip
 Add-PrinterDriver -Name "HP Universal Printing PCL 6 (v7.1.0)"
 Add-Printer -DriverName "HP Universal Printing PCL 6 (v7.1.0)" -Name $printername -PortName $printerip
 
-#Brother Printer 
+# Brother Printer 
 $printerip = Read-Host -Prompt "Input Printer IP"
 $iplastoctet = $printerip.split('.')
 $printername = "Brother (" + $iplastoctet[3] +")"
 Add-PrinterPort -Name $printerip -PrinterHostAddress $printerip
 Add-PrinterDriver -Name "Brother Mono Universal Printer (PCL)"
 Add-Printer -DriverName "Brother Mono Universal Printer (PCL)" -Name $printername -PortName $printerip
+
+# Canon Printer 
+$printerip = Read-Host -Prompt "Input Printer IP"
+$iplastoctet = $printerip.split('.')
+$printername = "Canon (" + $iplastoctet[3] +")"
+Add-PrinterPort -Name $printerip -PrinterHostAddress $printerip
+Add-PrinterDriver -Name "Canon Generic Plus PCL6"
+Add-Printer -DriverName "Canon Generic Plus PCL6" -Name $printername -PortName $printerip
