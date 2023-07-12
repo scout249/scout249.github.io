@@ -144,7 +144,7 @@ function New-Menu {
         0 { New-Backup }
         1 { New-Restore }
         2 { New-JoinDomain }
-        3 { Get-NetAdapter }
+        3 { $a = hostname ; get-netadapter | select Name, MacAddress | Out-File \\172.17.201.28\MigrationStore\MAC_Address\$a.txt }
     }
 
 }
