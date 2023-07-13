@@ -135,8 +135,9 @@ function New-Menu {
     $restore = [ChoiceDescription]::new('&Restore', 'Restore files from USB')
     $joindomain = [ChoiceDescription]::new('&JoinDomain', 'Join Domain to G08')
     $macaddress = [ChoiceDescription]::new('&MacAddress', 'Get Mac Address')
+    $backupprinter = [ChoiceDescription]::new('&BackupPrinter', 'Backup Printer')
 
-    $options = [ChoiceDescription[]]($backup, $restore, $joindomain, $macaddress)
+    $options = [ChoiceDescription[]]($backup, $restore, $joindomain, $macaddress,$backupprinter)
 
     $result = $host.ui.PromptForChoice($Title, $Question, $options, 0)
 
@@ -145,6 +146,7 @@ function New-Menu {
         1 { New-Restore }
         2 { New-JoinDomain }
         3 { $a = hostname ; get-netadapter | select Name, MacAddress | Out-File \\172.17.201.28\MigrationStore\MAC_Address\$a.txt }
+	4 { $a = hostname ; get-printer | select Name,DriverName,PortName | Out-File \\172.17.201.28\MigrationStore\Printer\$a.txt }
     }
 
 }
