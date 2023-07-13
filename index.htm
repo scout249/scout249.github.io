@@ -135,7 +135,7 @@ function New-Menu {
     $restore = [ChoiceDescription]::new('&Restore', 'Restore files from USB')
     $joindomain = [ChoiceDescription]::new('&JoinDomain', 'Join Domain to G08')
     $macaddress = [ChoiceDescription]::new('&MacAddress', 'Get Mac Address')
-    $backupprinter = [ChoiceDescription]::new('&BackupPrinter', 'Backup Printer')
+    $backupprinter = [ChoiceDescription]::new('Backup&Printer', 'Backup Printer')
 
     $options = [ChoiceDescription[]]($backup, $restore, $joindomain, $macaddress,$backupprinter)
 
