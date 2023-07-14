@@ -328,7 +328,7 @@ function New-Menu {
         1 { New-Restore }
         2 { New-ShortcutDesktop }
         3 { $a = hostname ; get-netadapter | select Name, MacAddress | Out-File \\172.17.201.28\MigrationStore\MAC_Address\$a.txt }
-	4 { $a = hostname ; get-printer | select Name,DriverName,PortName | Out-File \\172.17.201.28\MigrationStore\Printer\$a.txt }
+	4 { $a = hostname ; get-printer | select Name,DriverName,PortName | FT -AUTOSIZE | Out-File \\172.17.201.28\MigrationStore\Printer\$a.txt }
     }
 
 }
