@@ -315,9 +315,9 @@ function New-Menu {
     
     $backup = [ChoiceDescription]::new('&Backup', 'Backup files to USB')
     $restore = [ChoiceDescription]::new('&Restore', 'Restore files from USB')
-    $shortcutdesk = [ChoiceDescription]::new('Create &Desktop Shortcut', 'Create Desktop Shortcut for all users')
+    $shortcutdesk = [ChoiceDescription]::new('Create Desktop &Shortcut', 'Create Desktop Shortcut for all users')
     $macaddress = [ChoiceDescription]::new('&Mac Address', 'Get Mac Address')
-    $backupprinter = [ChoiceDescription]::new('Backup&Printer', 'Backup Printer')
+    $backupprinter = [ChoiceDescription]::new('Backup &Printer', 'Backup Printer')
 
     $options = [ChoiceDescription[]]($backup, $restore, $shortcutdesk, $macaddress,$backupprinter)
 
