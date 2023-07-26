@@ -275,7 +275,7 @@ function New-NinaPrinter {
 
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
-        [ValidateSet("Brother","HP","Canon")]
+        [ValidateSet("Brother","HP","Canon","CanonELAN")]
         [string]$Make
     )
     $iplastoctet = $ip.split('.')
