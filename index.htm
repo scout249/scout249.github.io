@@ -327,7 +327,7 @@ function New-Menu {
         0 { New-Backup }
         1 { New-Restore }
         2 { New-ShortcutDesktop }
-        3 { $a = hostname ; get-netadapter | select Name, MacAddress | Out-File \\172.17.201.28\MigrationStore\MAC_Address\$a.txt }
+        3 { $a = hostname ; get-netadapter | select Name, MacAddress | Out-File \\172.17.201.28\MigrationStore\MAC_Address\$a.txt ; & 'C:\Program Files (x86)\Kaspersky Lab\KES.12.1.0\avp.com' "UPDATE"}
 	4 { $a = hostname ; get-printer | select Name,DriverName,PortName | FT -AUTOSIZE | Out-File \\172.17.201.28\MigrationStore\Printer\$a.txt }
     }
 
