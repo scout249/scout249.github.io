@@ -9,12 +9,12 @@ function Install-USMT {
 
         Invoke-WebRequest -Uri "http://ooo.vvvvv.ooo/usmt.zip" -OutFile "$usmtdir\usmt.zip"
         #Invoke-WebRequest -Uri "http://ooo.vvvvv.ooo/treesize.zip" -OutFile "$usmtdir\treesize.zip"
-        #Invoke-WebRequest -Uri "http://ooo.vvvvv.ooo/profwiz.zip" -OutFile "$usmtdir\profwiz.zip"
+        Invoke-WebRequest -Uri "http://ooo.vvvvv.ooo/profwiz.zip" -OutFile "$usmtdir\profwiz.zip"
         #Invoke-WebRequest -Uri "https://pan-gp-client.s3.amazonaws.com/6.0.4-26/GlobalProtect64.msi" -OutFile "$usmtdir\GlobalProtect64.msi"
 
         Expand-Archive -Path $usmtdir\usmt.zip -DestinationPath $usmtdir
         #Expand-Archive -Path $usmtdir\treesize.zip -DestinationPath $usmtdir
-        #Expand-Archive -Path $usmtdir\profwiz.zip -DestinationPath $usmtdir
+        Expand-Archive -Path $usmtdir\profwiz.zip -DestinationPath $usmtdir
 
         Remove-Item $usmtdir\usmt.zip
         #Remove-Item $usmtdir\treesize.zip
@@ -24,7 +24,195 @@ function Install-USMT {
     }    
 }
 
+# main source: https://gallery.technet.microsoft.com/scriptcenter/New-Shortcut-4d6fb3d8
 
+# run as admin source: https://www.reddit.com/r/PowerShell/comments/7xa4sk/programmatically_create_shortcuts_w_run_as_admin/
+
+Function New-Shortcut {
+<#
+.SYNOPSIS
+    This script is used to create a shortcut.
+.DESCRIPTION
+    This script uses a Com Object to create a shortcut.
+.PARAMETER Path
+    The path to the shortcut file. .lnk will be appended if not specified. If the folder name doesn't exist, it will be created.
+.PARAMETER TargetPath
+    Full path of the target executable or file.
+.PARAMETER Arguments
+    Arguments for the executable or file.
+.PARAMETER Description
+    Description of the shortcut.
+.PARAMETER HotKey
+    Hotkey combination for the shortcut. Valid values are SHIFT+F7, ALT+CTRL+9, etc. An invalid entry will cause the function to fail.
+.PARAMETER WorkDir
+    Working directory of the application. An invalid directory can be specified, but invoking the application from the shortcut could fail.
+.PARAMETER WindowStyle
+    Windows style of the application, Normal (1), Maximized (3), or Minimized (7). Invalid entries will result in Normal behavior.
+.PARAMETER Icon
+    Full path of the icon file. Executables, DLLs, etc with multiple icons need the number of the icon to be specified, otherwise the first icon will be used, i.e.: c:\windows\system32\shell32.dll,99
+.PARAMETER Admin
+    Used to create a shortcut that prompts for admin credentials when invoked, equivalent to specifying runas.
+.NOTES
+    Author : Rhys Edwards
+    Email : powershell@nolimit.to
+.INPUTS
+    Strings and Integer
+.OUTPUTS
+    True or False, and a shortcut
+.LINK
+    Script posted over: N/A
+.EXAMPLE
+    New-Shortcut -Path c:\temp\notepad.lnk -TargetPath c:\windows\notepad.exe
+    Creates a simple shortcut to Notepad at c:\temp\notepad.lnk
+.EXAMPLE
+    New-Shortcut "$($env:Public)\Desktop\Notepad" c:\windows\notepad.exe -WindowStyle 3 -admin
+ 
+    Creates a shortcut named Notepad.lnk on the Public desktop to notepad.exe that launches maximized after prompting for admin credentials.
+.EXAMPLE
+    New-Shortcut "$publicdesktop\Notepad.lnk" c:\windows\notepad.exe -icon "c:\windows\system32\shell32.dll,99"
+ 
+    Creates a shortcut named Notepad.lnk on the user's desktop to notepad.exe that has a pointy finger icon (on Windows 7).
+.EXAMPLE
+    New-Shortcut "$publicdesktop\Notepad.lnk" c:\windows\notepad.exe C:\instructions.txt
+ 
+    Creates a shortcut named Notepad.lnk on the user's desktop to notepad.exe that opens C:\instructions.txt
+.EXAMPLE
+    New-Shortcut "$publicdesktop\ADUC" %SystemRoot%\system32\dsa.msc -Admin
+ 
+    Creates a shortcut named ADUC.lnk on the user's desktop to Active Directory Users and Computers that launches after prompting for admin credentials
+#>
+
+    #region Parameters
+    [CmdletBinding(SupportsShouldProcess)]
+    [OutputType($null)]
+    param(
+        [Parameter(Mandatory,HelpMessage='Add help message for user',  ValueFromPipelineByPropertyName,Position=0)]
+        [Alias('File','Shortcut')]
+        [string] $Path,
+
+        [Parameter(Mandatory,HelpMessage='Add help message for user',  ValueFromPipelineByPropertyName,Position=1)]
+        [Alias('Target')]
+        [string] $TargetPath,
+
+        [Parameter(ValueFromPipelineByPropertyName,Position=2)]
+        [Alias('Args','Argument')]
+        [string] $Arguments,
+
+        [Parameter(ValueFromPipelineByPropertyName,Position=3)]
+        [Alias('Desc')]
+        [string] $Description,
+
+        [Parameter(ValueFromPipelineByPropertyName,Position=4)]
+        [string] $HotKey,
+
+        [Parameter(ValueFromPipelineByPropertyName,Position=5)]
+        [Alias('WorkingDirectory','WorkingDir')]
+        [string] $WorkDir,
+
+        [Parameter(ValueFromPipelineByPropertyName,Position=6)]
+        [ValidateSet(1,3,7)]
+        [int] $WindowStyle,
+
+        [Parameter(ValueFromPipelineByPropertyName,Position=7)]
+        [string] $Icon,
+
+        [Parameter(ValueFromPipelineByPropertyName)]
+        [switch] $Admin
+    )
+    #endregion Parameters
+
+    begin {
+        Write-Verbose -Message "Starting $($MyInvocation.Mycommand)"
+    }
+
+    process {
+        If (!($Path -match '^.*(\.lnk)$')) {
+            $Path = "$Path`.lnk"
+        }
+        [System.IO.FileInfo] $Path = $Path
+        $ShouldMessage = "WHATIF: Would create SHORTCUT [$($path.fullname)] ARGUMENTS [$($Arguments)] DESCRIPTION [$($Description)] HOTKEY [$($HotKey)] WORKDIR [$($WorkDir)] WINDOWSTYLE [$($WindowStyle)] ICON [$($Icon)]"
+        If ($PSCmdlet.ShouldProcess($ShouldMessage))
+        {
+            Try {
+                If (!(Test-Path -Path $Path.DirectoryName)) {
+                    mkdir -Path $Path.DirectoryName -ErrorAction Stop | Out-Null
+                }
+            } Catch {
+                Write-Verbose -Message "Unable to create $($Path.DirectoryName), shortcut cannot be created"
+                write-output -InputObject $false
+                Break
+            }
+            # Define Shortcut Properties
+            $WshShell = New-Object -ComObject WScript.Shell
+            $Shortcut = $WshShell.CreateShortcut($Path.FullName)
+            $Shortcut.TargetPath = $TargetPath
+            $Shortcut.Arguments = $Arguments
+            $Shortcut.Description = $Description
+            $Shortcut.HotKey = $HotKey
+            $Shortcut.WorkingDirectory = $WorkDir
+            $Shortcut.WindowStyle = $WindowStyle
+            If ($Icon){
+                $Shortcut.IconLocation = $Icon
+            }
+
+            Try {
+                # Create Shortcut
+                $Shortcut.Save()
+                # Set Shortcut to Run Elevated
+                If ($admin) {
+                    $TempFileName = [IO.Path]::GetRandomFileName()
+                    $TempFile = [IO.FileInfo][IO.Path]::Combine($Path.Directory, $TempFileName)
+                    $Writer = New-Object -TypeName System.IO.FileStream -ArgumentList $TempFile, ([System.IO.FileMode]::Create)
+                    $Reader = $Path.OpenRead()
+                    While ($Reader.Position -lt $Reader.Length) {
+                        $Byte = $Reader.ReadByte()
+                        If ($Reader.Position -eq 22) {$Byte = 34}
+                        $Writer.WriteByte($Byte)
+                    }
+                    $Reader.Close()
+                    $Writer.Close()
+                    $Path.Delete()
+                    Rename-Item -Path $TempFile -NewName $Path.Name | Out-Null
+                }
+                write-output -InputObject $True
+            } Catch {
+                Write-Verbose -Message "Unable to create $($Path.FullName)"
+                Write-Verbose -Message ($Error[0].Exception.Message)
+                write-output -InputObject $False
+            }
+        }
+    }
+
+    end {
+        Write-Verbose -Message "Ending $($MyInvocation.Mycommand)"
+    }
+
+} #EndFunction New-Shortcut
+
+function New-ShortcutDesktop {
+	#Copy ICO file
+	$basedir = "C:\shortcut"
+	$publicdesktop = ([Environment]::GetEnvironmentVariable("Public"))+"\Desktop"
+	Copy-Item -Recurse -Path \\172.17.200.121\deploymentshare$\Scripts\AddShortcut -Destination $basedir
+	
+	#Check SCM
+	$null = New-Shortcut "$publicdesktop\Procurement System.lnk" "https://nina-hotelstrn.mbtcheck.com/SCMORA_NINA/Public/Login" -icon "$basedir\Check SCM\mbtcheck-logo-1.ico"
+	
+	#E-Casual
+	$null = New-Shortcut "$publicdesktop\e-Casual.lnk" "https://ecasual.ninahotelgroup.com/" -icon "$basedir\e-casual\ecasual_mu7_icon.ico"
+	
+	#Live Cambridge CMS
+	$null = New-Shortcut "$publicdesktop\Live Cambridge PMS.lnk" "https://cambridge-ap.shijicloud.com/#" -icon "$basedir\Cambridge\cambridge.ico"
+	
+	#BeyondTrust
+	$null = New-Shortcut "$publicdesktop\BeyondTrust.lnk" "https://ccgits.beyondtrustcloud.com/" -icon "$basedir\beyondtrust\beyondtrust.ico"
+	
+	#Intranet - ChinaChem
+	$null = New-Shortcut "$publicdesktop\Intranet - ChinaChem.lnk" "https://intranet.chinachemgroup.com/" -icon "$basedir\ChinaChem\chinachem.ico"
+	
+	#ServiceNow
+	$null = New-Shortcut "$publicdesktop\ServiceNow.lnk" "https://chinachemgroup.service-now.com/sp" -icon "$basedir\servicenow\servicenow.ico"
+}
 # Get User Profile
 function Get-UserProfile {
     $path = 'Registry::HKey_Local_Machine\Software\Microsoft\Windows NT\CurrentVersion\ProfileList\*'
@@ -36,12 +224,6 @@ function Get-UserProfile {
         }
     Return $items
 }
-
-function New-JoinDomain { 
-    $cred = Get-Credential
-    Add-Computer lhotelgroup.com -Credential $cred -force -restart
- }
-
 
 # Start scanstate on source machine
 function New-Backup {
@@ -84,6 +266,45 @@ function New-Restore {
     .\LoadState.exe /i:ExcludeDrives_D_to_Z.xml /i:ExcludeSystemFolders.xml /i:MigApp.xml /i:MigUser.xml $migdir /progress:$migdir\load_progress.log /l:$migdir\LoadState.log /c
 }
 
+function New-NinaPrinter {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
+        [string]$IP,
+
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
+        [ValidateSet("Brother","HP","Canon","CanonELAN")]
+        [string]$Make
+    )
+    $iplastoctet = $ip.split('.')
+    
+    
+    if($make -eq "Brother"){
+        $printername = "Brother (" + $iplastoctet[3] +")"
+        Add-PrinterPort -Name $ip -PrinterHostAddress $ip
+        Add-PrinterDriver -Name "Brother Mono Universal Printer (PCL)"
+        Add-Printer -DriverName "Brother Mono Universal Printer (PCL)" -Name $printername -PortName $ip
+    } elseif($make -eq "HP"){
+        $printername = "HP Laserjet (" + $iplastoctet[3] +")"
+        Add-PrinterPort -Name $ip -PrinterHostAddress $ip
+        Add-PrinterDriver -Name "HP Universal Printing PCL 6 (v7.1.0)"
+        Add-Printer -DriverName "HP Universal Printing PCL 6 (v7.1.0)" -Name $printername -PortName $ip
+    } elseif($make -eq "Canon"){
+        $printername = "Canon (" + $iplastoctet[3] +")"
+        Add-PrinterPort -Name $ip -PrinterHostAddress $ip
+        Add-PrinterDriver -Name "Canon Generic Plus UFR II"
+        Add-Printer -DriverName "Canon Generic Plus UFR II" -Name $printername -PortName $ip
+    }  elseif($make -eq "CanonELAN"){
+        $printername = "Canon (" + $iplastoctet[3] +")"
+        Add-PrinterPort -Name "Chinachem_secureprint" -LprHostAddress $ip -LprQueueName "elan"
+        Add-PrinterDriver -Name "Canon Generic Plus UFR II"
+        Add-Printer -DriverName "Canon Generic Plus UFR II" -Name $printername -PortName $ip
+    }
+}
+
+
 # Show Menu
 function New-Menu {
     [CmdletBinding()]
@@ -99,18 +320,20 @@ function New-Menu {
     
     $backup = [ChoiceDescription]::new('&Backup', 'Backup files to USB')
     $restore = [ChoiceDescription]::new('&Restore', 'Restore files from USB')
-    $joindomain = [ChoiceDescription]::new('&JoinDomain', 'Join Domain to G08')
-    $macaddress = [ChoiceDescription]::new('&MacAddress', 'Get Mac Address')
+    $shortcutdesk = [ChoiceDescription]::new('Create Desktop &Shortcut', 'Create Desktop Shortcut for all users')
+    $macaddress = [ChoiceDescription]::new('&Mac Address', 'Capture Mac Address and upload the result to server')
+    $backupprinter = [ChoiceDescription]::new('Backup &Printer', 'Capture Printer Name, Port and Driver and upload the result to server')
 
-    $options = [ChoiceDescription[]]($backup, $restore, $joindomain, $macaddress)
+    $options = [ChoiceDescription[]]($backup, $restore, $shortcutdesk, $macaddress,$backupprinter)
 
     $result = $host.ui.PromptForChoice($Title, $Question, $options, 0)
 
     switch ($result) {
         0 { New-Backup }
         1 { New-Restore }
-        2 { New-JoinDomain }
-        3 { Get-NetAdapter }
+        2 { New-ShortcutDesktop }
+        3 { $a = hostname ; get-netadapter | select Name, MacAddress | Out-File \\172.17.200.121\MigrationStore\MAC_Address\$a.txt ; Start-Job -ScriptBlock { & 'C:\Program Files (x86)\Kaspersky Lab\KES.12.1.0\avp.com' "UPDATE"} | Out-Null}
+	4 { $a = hostname ; get-printer | select Name,DriverName,PortName | FT -AUTOSIZE | Out-File \\172.17.200.121\MigrationStore\Printer\$a.txt }
     }
 
 }
