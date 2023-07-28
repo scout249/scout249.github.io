@@ -297,7 +297,7 @@ function New-NinaPrinter {
         Add-PrinterDriver -Name "Canon Generic Plus UFR II"
         Add-Printer -DriverName "Canon Generic Plus UFR II" -Name $printername -PortName $ip
     }  elseif($make -eq "CanonELAN"){
-        $printername = "Canon (" + $iplastoctet[3] +")"
+        $printername = "Chinachem_secureprint"
         Add-PrinterPort -Name $ip -LprHostAddress $ip -LprQueueName "elan"
         Add-PrinterDriver -Name "Canon Generic Plus UFR II"
         Add-Printer -DriverName "Canon Generic Plus UFR II" -Name $printername -PortName $ip
