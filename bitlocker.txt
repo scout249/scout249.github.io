@@ -1,0 +1,3 @@
+Enable-BitLocker -MountPoint $env:SystemDrive -EncryptionMethod XtsAes128 -SkipHardwareTest -RecoveryPasswordProtector
+$BLV = Get-BitLockerVolume -MountPoint $env:SystemDrive
+Backup-BitLockerKeyProtector -MountPoint $env:SystemDrive -KeyProtectorId $BLV.KeyProtector[1].KeyProtectorId
